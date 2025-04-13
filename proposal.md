@@ -82,4 +82,4 @@ Would benefit from deeper walkthroughs on:
 ---
 
 ### GitHub Repository
-[Insert your GitHub repo URL here]
+https://github.com/akoniashvili1/oim-final-project/blob/main/proposal.md

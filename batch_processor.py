@@ -11,11 +11,28 @@ class SECForm4Processor:
         self.output_dir = Path(output_dir)
         
         # Create output directory if it doesn't exist
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self._ensure_output_directory()
         
         # Setup logging
         logging.basicConfig(level=logging.INFO, format='%(message)s')
         self.logger = logging.getLogger(__name__)
+    
+    def _ensure_output_directory(self):
+        """Ensure the output directory exists and is actually a directory."""
+        try:
+            # Check if path exists and is a file (not directory)
+            if self.output_dir.exists() and self.output_dir.is_file():
+                self.logger.warning(f"Removing file at {self.output_dir} to create directory")
+                self.output_dir.unlink()  # Remove the file
+            
+            # Create directory
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            
+        except Exception as e:
+            # Fallback: use current directory for output
+            self.logger.warning(f"Could not create output directory {self.output_dir}: {e}")
+            self.logger.warning("Using current directory for output files")
+            self.output_dir = Path(".")
         
     def find_xml_files(self) -> List[Path]:
         """Find all XML files in the data directory."""

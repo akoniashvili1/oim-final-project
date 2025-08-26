@@ -1,0 +1,3 @@
+transaction_date,transaction_code,shares,price_per_share,acquired_disposed,total_value,company_name,ticker,insider_name,insider_cik,source_file,transaction_description,conviction_score,signal,days_since_transaction
+2025-05-12,D,15533.0,208.1933,A,3233866.5289,Apple Inc.,AAPL,KONDO CHRIS,0001631982,aaple_form4.xml,Disposition,3.0,Buy,105
+2025-08-01,D,512050.0,217.0,A,111114850.0,AMAZON COM INC,AMZN,Herrington Douglas J,0001936006,amzn_form4.xml,Disposition,3.0,Buy,24

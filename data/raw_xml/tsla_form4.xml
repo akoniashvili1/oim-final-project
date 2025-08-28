@@ -1,0 +1,102 @@
+<ownershipDocument>
+<schemaVersion>X0508</schemaVersion>
+<documentType>4</documentType>
+<periodOfReport>2025-08-03</periodOfReport>
+<notSubjectToSection16>0</notSubjectToSection16>
+<issuer>
+<issuerCik>0001318605</issuerCik>
+<issuerName>Tesla, Inc.</issuerName>
+<issuerTradingSymbol>TSLA</issuerTradingSymbol>
+</issuer>
+<reportingOwner>
+<reportingOwnerId>
+<rptOwnerCik>0001494730</rptOwnerCik>
+<rptOwnerName>Musk Elon</rptOwnerName>
+</reportingOwnerId>
+<reportingOwnerAddress>
+<rptOwnerStreet1>C/O TESLA, INC.</rptOwnerStreet1>
+<rptOwnerStreet2>1 TESLA ROAD</rptOwnerStreet2>
+<rptOwnerCity>AUSTIN</rptOwnerCity>
+<rptOwnerState>TX</rptOwnerState>
+<rptOwnerZipCode>78725</rptOwnerZipCode>
+<rptOwnerStateDescription/>
+</reportingOwnerAddress>
+<reportingOwnerRelationship>
+<isDirector>1</isDirector>
+<isOfficer>1</isOfficer>
+<isTenPercentOwner>1</isTenPercentOwner>
+<isOther>0</isOther>
+<officerTitle>CEO</officerTitle>
+<otherText/>
+</reportingOwnerRelationship>
+</reportingOwner>
+<aff10b5One>0</aff10b5One>
+<nonDerivativeTable>
+<nonDerivativeTransaction>
+<securityTitle>
+<value>Common Stock</value>
+</securityTitle>
+<transactionDate>
+<value>2025-08-03</value>
+</transactionDate>
+<deemedExecutionDate/>
+<transactionCoding>
+<transactionFormType>4</transactionFormType>
+<transactionCode>A</transactionCode>
+<equitySwapInvolved>0</equitySwapInvolved>
+<footnoteId id="F1"/>
+</transactionCoding>
+<transactionTimeliness/>
+<transactionAmounts>
+<transactionShares>
+<value>96000000</value>
+</transactionShares>
+<transactionPricePerShare>
+<value>23.34</value>
+<footnoteId id="F2"/>
+</transactionPricePerShare>
+<transactionAcquiredDisposedCode>
+<value>A</value>
+</transactionAcquiredDisposedCode>
+</transactionAmounts>
+<postTransactionAmounts>
+<sharesOwnedFollowingTransaction>
+<value>96000000</value>
+</sharesOwnedFollowingTransaction>
+</postTransactionAmounts>
+<ownershipNature>
+<directOrIndirectOwnership>
+<value>D</value>
+</directOrIndirectOwnership>
+</ownershipNature>
+</nonDerivativeTransaction>
+<nonDerivativeHolding>
+<securityTitle>
+<value>Common Stock</value>
+</securityTitle>
+<postTransactionAmounts>
+<sharesOwnedFollowingTransaction>
+<value>410794076</value>
+</sharesOwnedFollowingTransaction>
+</postTransactionAmounts>
+<ownershipNature>
+<directOrIndirectOwnership>
+<value>I</value>
+</directOrIndirectOwnership>
+<natureOfOwnership>
+<value>By Trust</value>
+<footnoteId id="F3"/>
+</natureOfOwnership>
+</ownershipNature>
+</nonDerivativeHolding>
+</nonDerivativeTable>
+<footnotes>
+<footnote id="F1">This restricted stock award is granted pursuant to Tesla, Inc.'s 2019 Equity Incentive Plan and will be delivered upon termination or expiration of the waiting period (and any extension thereof) applicable under the Hart-Scott-Rodino Antitrust Improvements Act of 1976, as amended. The restricted stock award will vest on August 3, 2027, subject to satisfaction of certain conditions.</footnote>
+<footnote id="F2">Represents purchase price payable unconditionally upon vesting of this restricted stock award.</footnote>
+<footnote id="F3">The Elon Musk Revocable Trust dated July 22, 2003, for which the Reporting Person is the trustee.</footnote>
+</footnotes>
+<ownerSignature>
+<signatureName>By: Aaron Beckman by Power of Attorney For: Elon Musk</signatureName>
+<signatureDate>2025-08-04</signatureDate>
+</ownerSignature>
+</ownershipDocument>

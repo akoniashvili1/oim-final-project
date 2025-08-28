@@ -320,27 +320,6 @@ class InsiderTradingParser:
         
         df['signal'] = df['conviction_score'].apply(generate_signal)
         
-    # Compute company-level signal
-        company_signals = df.groupby('ticker').agg({
-            'conviction_score': 'mean',
-            'total_value': 'sum'
-        }).reset_index()
-
-        def combined_signal(score):
-            if score >= 4.0:
-                return 'Strong Buy'
-            elif score >= 3.0:
-                return 'Buy'
-            elif score >= 2.0:
-                return 'Weak Buy'
-            else:
-                return 'Sell'
-
-        company_signals['company_signal'] = company_signals['conviction_score'].apply(combined_signal)
-
-        # Merge back to df so each transaction has its company's combined signal
-        df = df.merge(company_signals[['ticker','company_signal']], on='ticker', how='left')
-
         # Days since transaction
         def days_since(date_str):
             try:
@@ -368,32 +347,53 @@ def generate_summary_report(df: pd.DataFrame):
     print("INSIDER TRADING INTELLIGENCE REPORT")
     print("=" * 60)
     
-    # Aggregate by company for reporting
-    company_df = df.groupby('ticker').agg({
-        'conviction_score': 'mean',
-        'total_value': 'sum',
-        'signal': 'first',  # company-level signal
-        'insider_name': lambda x: ', '.join(set(x))
-    }).reset_index()
-    
+    # Basic stats
     print(f"Total Transactions: {len(df)}")
-    print(f"Unique Companies: {company_df['ticker'].nunique()}")
+    print(f"Unique Companies: {df['ticker'].nunique()}")
     print(f"Unique Insiders: {df['insider_name'].nunique()}")
     print(f"Total Dollar Volume: ${df['total_value'].sum():,.2f}")
     print(f"Average Conviction Score: {df['conviction_score'].mean():.2f}")
     
-    print("\nSignal Distribution (per company):")
-    signals = company_df['signal'].value_counts()
+    # Signal distribution
+    print(f"\nSignal Distribution:")
+    signals = df['signal'].value_counts()
     for signal, count in signals.items():
-        pct = (count / len(company_df)) * 100
+        pct = (count / len(df)) * 100
         print(f"  {signal}: {count} ({pct:.1f}%)")
     
-    print("\nCompany Summary:")
+    # Top conviction trades
+    print(f"\nTop 10 Highest Conviction Trades:")
     print("-" * 60)
-    for _, row in company_df.iterrows():
-        print(f"{row['ticker']:4} | {row['insider_name'][:20]:20} | "
-              f"${row['total_value']:>10,.0f} | "
-              f"Avg Score: {row['conviction_score']:.1f} | Signal: {row['signal']}")
+    top_trades = df.nlargest(10, 'conviction_score')
+    for _, trade in top_trades.iterrows():
+        print(f"{trade['ticker']:4} | {trade['insider_name'][:15]:15} | "
+              f"{trade['transaction_description']:8} | "
+              f"${trade['total_value']:>10,.0f} | "
+              f"Score: {trade['conviction_score']:.1f} | {trade['signal']}")
+    
+    # Company activity
+    print(f"\nMost Active Companies:")
+    print("-" * 40)
+    company_activity = df.groupby('ticker').agg({
+        'total_value': 'sum',
+        'conviction_score': 'mean',
+        'ticker': 'count'
+    }).rename(columns={'ticker': 'transaction_count'})
+    
+    top_companies = company_activity.nlargest(10, 'total_value')
+    for ticker, row in top_companies.iterrows():
+        print(f"{ticker:4} | {row['transaction_count']:2} trades | "
+              f"${row['total_value']:>12,.0f} | "
+              f"Avg Score: {row['conviction_score']:.1f}")
+    
+    # Recent activity
+    recent_trades = df[df['days_since_transaction'] <= 30]
+    print(f"\nRecent Activity (Last 30 days): {len(recent_trades)} trades")
+    
+    if len(recent_trades) > 0:
+        recent_signals = recent_trades['signal'].value_counts()
+        for signal, count in recent_signals.items():
+            print(f"  {signal}: {count}")
 
 def main():
     """Main execution"""

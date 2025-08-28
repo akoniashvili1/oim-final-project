@@ -1,0 +1,37 @@
+<ownershipDocument>
+<schemaVersion>X0508</schemaVersion>
+<documentType>4</documentType>
+<periodOfReport>2025-06-30</periodOfReport>
+<notSubjectToSection16>1</notSubjectToSection16>
+<issuer>
+<issuerCik>0000019617</issuerCik>
+<issuerName>JPMORGAN CHASE & CO</issuerName>
+<issuerTradingSymbol>JPM</issuerTradingSymbol>
+</issuer>
+<reportingOwner>
+<reportingOwnerId>
+<rptOwnerCik>0001555174</rptOwnerCik>
+<rptOwnerName>Pinto Daniel E</rptOwnerName>
+</reportingOwnerId>
+<reportingOwnerAddress>
+<rptOwnerStreet1>383 MADISON AVENUE</rptOwnerStreet1>
+<rptOwnerStreet2/>
+<rptOwnerCity>NEW YORK</rptOwnerCity>
+<rptOwnerState>NY</rptOwnerState>
+<rptOwnerZipCode>10179-0001</rptOwnerZipCode>
+<rptOwnerStateDescription/>
+</reportingOwnerAddress>
+<reportingOwnerRelationship>
+<isOfficer>1</isOfficer>
+<officerTitle>President & COO</officerTitle>
+</reportingOwnerRelationship>
+</reportingOwner>
+<aff10b5One>0</aff10b5One>
+<nonDerivativeTable/>
+<derivativeTable/>
+<footnotes/>
+<ownerSignature>
+<signatureName>/s/ Holly Youngwood under POA</signatureName>
+<signatureDate>2025-07-02</signatureDate>
+</ownerSignature>
+</ownershipDocument>

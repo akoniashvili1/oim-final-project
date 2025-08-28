@@ -1,0 +1,117 @@
+<ownershipDocument>
+<schemaVersion>X0508</schemaVersion>
+<documentType>4</documentType>
+<periodOfReport>2025-08-26</periodOfReport>
+<notSubjectToSection16>0</notSubjectToSection16>
+<issuer>
+<issuerCik>0001326801</issuerCik>
+<issuerName>Meta Platforms, Inc.</issuerName>
+<issuerTradingSymbol>META</issuerTradingSymbol>
+</issuer>
+<reportingOwner>
+<reportingOwnerId>
+<rptOwnerCik>0001645073</rptOwnerCik>
+<rptOwnerName>Anderson Aaron</rptOwnerName>
+</reportingOwnerId>
+<reportingOwnerAddress>
+<rptOwnerStreet1>C/O META PLATFORMS, INC.</rptOwnerStreet1>
+<rptOwnerStreet2>1 META WAY</rptOwnerStreet2>
+<rptOwnerCity>MENLO PARK</rptOwnerCity>
+<rptOwnerState>CA</rptOwnerState>
+<rptOwnerZipCode>94025</rptOwnerZipCode>
+<rptOwnerStateDescription/>
+</reportingOwnerAddress>
+<reportingOwnerRelationship>
+<isDirector>0</isDirector>
+<isOfficer>1</isOfficer>
+<isTenPercentOwner>0</isTenPercentOwner>
+<isOther>0</isOther>
+<officerTitle>Chief Accounting Officer</officerTitle>
+<otherText/>
+</reportingOwnerRelationship>
+</reportingOwner>
+<aff10b5One>0</aff10b5One>
+<nonDerivativeTable>
+<nonDerivativeTransaction>
+<securityTitle>
+<value>Class A Common Stock</value>
+</securityTitle>
+<transactionDate>
+<value>2025-08-26</value>
+</transactionDate>
+<deemedExecutionDate/>
+<transactionCoding>
+<transactionFormType>4</transactionFormType>
+<transactionCode>G</transactionCode>
+<equitySwapInvolved>0</equitySwapInvolved>
+<footnoteId id="F1"/>
+</transactionCoding>
+<transactionTimeliness/>
+<transactionAmounts>
+<transactionShares>
+<value>665</value>
+</transactionShares>
+<transactionPricePerShare>
+<value>0</value>
+</transactionPricePerShare>
+<transactionAcquiredDisposedCode>
+<value>D</value>
+</transactionAcquiredDisposedCode>
+</transactionAmounts>
+<postTransactionAmounts>
+<sharesOwnedFollowingTransaction>
+<value>5767</value>
+</sharesOwnedFollowingTransaction>
+</postTransactionAmounts>
+<ownershipNature>
+<directOrIndirectOwnership>
+<value>D</value>
+</directOrIndirectOwnership>
+</ownershipNature>
+</nonDerivativeTransaction>
+<nonDerivativeTransaction>
+<securityTitle>
+<value>Class A Common Stock</value>
+</securityTitle>
+<transactionDate>
+<value>2025-08-26</value>
+</transactionDate>
+<deemedExecutionDate/>
+<transactionCoding>
+<transactionFormType>4</transactionFormType>
+<transactionCode>G</transactionCode>
+<equitySwapInvolved>0</equitySwapInvolved>
+<footnoteId id="F1"/>
+</transactionCoding>
+<transactionTimeliness/>
+<transactionAmounts>
+<transactionShares>
+<value>66</value>
+</transactionShares>
+<transactionPricePerShare>
+<value>0</value>
+</transactionPricePerShare>
+<transactionAcquiredDisposedCode>
+<value>D</value>
+</transactionAcquiredDisposedCode>
+</transactionAmounts>
+<postTransactionAmounts>
+<sharesOwnedFollowingTransaction>
+<value>5701</value>
+</sharesOwnedFollowingTransaction>
+</postTransactionAmounts>
+<ownershipNature>
+<directOrIndirectOwnership>
+<value>D</value>
+</directOrIndirectOwnership>
+</ownershipNature>
+</nonDerivativeTransaction>
+</nonDerivativeTable>
+<footnotes>
+<footnote id="F1">Represents shares of the Issuer's Class A Common Stock that the reporting person donated as a gift to a charitable entity.</footnote>
+</footnotes>
+<ownerSignature>
+<signatureName>/s/ Erin Guldiken, attorney-in-fact for Aaron Anderson</signatureName>
+<signatureDate>2025-08-28</signatureDate>
+</ownerSignature>
+</ownershipDocument>

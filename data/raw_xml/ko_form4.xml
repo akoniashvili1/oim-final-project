@@ -1,0 +1,74 @@
+<ownershipDocument>
+<schemaVersion>X0508</schemaVersion>
+<documentType>4</documentType>
+<periodOfReport>2025-08-05</periodOfReport>
+<issuer>
+<issuerCik>0000021344</issuerCik>
+<issuerName>COCA COLA CO</issuerName>
+<issuerTradingSymbol>KO</issuerTradingSymbol>
+</issuer>
+<reportingOwner>
+<reportingOwnerId>
+<rptOwnerCik>0001760329</rptOwnerCik>
+<rptOwnerName>KOUMETTIS NIKOLAOS</rptOwnerName>
+</reportingOwnerId>
+<reportingOwnerAddress>
+<rptOwnerStreet1>THE COCA-COLA COMPANY</rptOwnerStreet1>
+<rptOwnerStreet2>ONE COCA-COLA PLAZA</rptOwnerStreet2>
+<rptOwnerCity>ATLANTA</rptOwnerCity>
+<rptOwnerState>GA</rptOwnerState>
+<rptOwnerZipCode>30313</rptOwnerZipCode>
+<rptOwnerStateDescription/>
+</reportingOwnerAddress>
+<reportingOwnerRelationship>
+<isOther>1</isOther>
+<otherText>Europe OU President</otherText>
+</reportingOwnerRelationship>
+</reportingOwner>
+<aff10b5One>0</aff10b5One>
+<nonDerivativeTable>
+<nonDerivativeTransaction>
+<securityTitle>
+<value>Common Stock, $.25 Par Value</value>
+</securityTitle>
+<transactionDate>
+<value>2025-08-05</value>
+</transactionDate>
+<transactionCoding>
+<transactionFormType>4</transactionFormType>
+<transactionCode>S</transactionCode>
+<equitySwapInvolved>0</equitySwapInvolved>
+</transactionCoding>
+<transactionTimeliness/>
+<transactionAmounts>
+<transactionShares>
+<value>37396</value>
+</transactionShares>
+<transactionPricePerShare>
+<value>69.1011</value>
+<footnoteId id="F1"/>
+</transactionPricePerShare>
+<transactionAcquiredDisposedCode>
+<value>D</value>
+</transactionAcquiredDisposedCode>
+</transactionAmounts>
+<postTransactionAmounts>
+<sharesOwnedFollowingTransaction>
+<value>209513</value>
+</sharesOwnedFollowingTransaction>
+</postTransactionAmounts>
+<ownershipNature>
+<directOrIndirectOwnership>
+<value>D</value>
+</directOrIndirectOwnership>
+</ownershipNature>
+</nonDerivativeTransaction>
+</nonDerivativeTable>
+<footnotes>
+<footnote id="F1">The price is the weighted average sale price of the aggregate number of shares that were sold by the reporting person. These shares were sold in multiple transactions at prices ranging from $69.08 to $69.135. The reporting person undertakes to provide to the issuer, any security holder of the issuer or the staff of the Securities and Exchange Commission, upon request, full information regarding the number of shares sold at each separate price.</footnote>
+</footnotes>
+<ownerSignature>
+<signatureName>/s/ Shequitta Parker, attorney-in-fact for Nikolaos Koumettis</signatureName>
+<signatureDate>2025-08-07</signatureDate>
+</ownerSignature>
+</ownershipDocument>

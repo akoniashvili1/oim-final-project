@@ -1,304 +1,426 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import numpy as np
-from datetime import datetime, timedelta
+# File 1: insider_parser.py
+"""
+SEC Form 4 Parser - MVP Implementation
+Handles real XML files and extracts insider trading data
+"""
+
 import os
+import pandas as pd
+import xml.etree.ElementTree as ET
+from pathlib import Path
+import re
+from typing import List, Dict, Optional
+from datetime import datetime
+import json
 
-# Page configuration
-st.set_page_config(
-    page_title="Insider Trading Intelligence Dashboard",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-@st.cache_data
-def load_data():
-    """Load and cache the insider trading data"""
-    csv_path = "data/insider_analysis.csv"
-    if not os.path.exists(csv_path):
-        st.error(f"Data file not found: {csv_path}")
-        st.info("Please run your MVP parser first to generate the data file.")
-        return None
+class InsiderTradingParser:
+    """Robust parser for SEC Form 4 XML files"""
     
-    try:
-        df = pd.read_csv(csv_path)
-        # Convert date column to datetime
-        if 'transaction_date' in df.columns:
-            df['transaction_date'] = pd.to_datetime(df['transaction_date'], errors='coerce')
-        return df
-    except Exception as e:
-        st.error(f"Error loading data: {str(e)}")
-        return None
+    def __init__(self, data_dir: str = "data"):
+        self.data_dir = Path(data_dir)
+        self.raw_xml_dir = self.data_dir / "raw_xml"
+        
+    def process_all_files(self) -> pd.DataFrame:
+        """Main method to process all XML files"""
+        print("Insider Trading Intelligence System - MVP")
+        print("=" * 50)
+        
+        # Check directory
+        if not self.raw_xml_dir.exists():
+            print(f"Directory {self.raw_xml_dir} not found!")
+            return pd.DataFrame()
+        
+        xml_files = list(self.raw_xml_dir.glob("*.xml"))
+        print(f"Found {len(xml_files)} XML files")
+        
+        all_transactions = []
+        successful_files = 0
+        
+        for xml_file in xml_files:
+            print(f"\nProcessing {xml_file.name}...")
+            
+            # Check file size first
+            if xml_file.stat().st_size == 0:
+                print("  SKIP: Empty file")
+                continue
+            
+            transactions = self._parse_single_file(xml_file)
+            if transactions:
+                all_transactions.extend(transactions)
+                successful_files += 1
+                print(f"  SUCCESS: {len(transactions)} transactions found")
+            else:
+                print("  SKIP: No transactions found")
+        
+        print(f"\n" + "=" * 50)
+        print(f"Processing Summary:")
+        print(f"Files processed: {successful_files}/{len(xml_files)}")
+        print(f"Total transactions: {len(all_transactions)}")
+        
+        if all_transactions:
+            df = pd.DataFrame(all_transactions)
+            df = self._add_analysis_columns(df)
+            
+            # Save results
+            output_file = self.data_dir / "insider_analysis.csv"
+            df.to_csv(output_file, index=False)
+            print(f"Results saved to: {output_file}")
+            
+            return df
+        else:
+            print("No transactions found in any files!")
+            return pd.DataFrame()
+    
+    def _parse_single_file(self, file_path: Path) -> List[Dict]:
+        """Parse a single XML file using multiple strategies"""
+        transactions = []
+        
+        try:
+            # Read file content
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            if not content.strip():
+                return transactions
+            
+            # Parse XML
+            root = ET.fromstring(content)
+            
+            # Strategy 1: Direct element search
+            transactions = self._extract_by_direct_search(root, file_path.name)
+            
+            # Strategy 2: If no transactions found, try pattern matching
+            if not transactions:
+                transactions = self._extract_by_pattern_matching(content, file_path.name)
+            
+            return transactions
+            
+        except Exception as e:
+            print(f"  ERROR: {e}")
+            return transactions
+    
+    def _extract_by_direct_search(self, root, filename: str) -> List[Dict]:
+        """Extract data by searching through all elements"""
+        transactions = []
+        
+        # Find company info
+        company_info = self._find_company_info(root)
+        
+        # Find all transaction containers
+        transaction_containers = []
+        for elem in root.iter():
+            tag_name = elem.tag.split('}')[-1].lower()
+            if 'transaction' in tag_name and ('nonderivative' in tag_name or 'derivative' in tag_name):
+                transaction_containers.append(elem)
+        
+        print(f"  Found {len(transaction_containers)} transaction containers")
+        
+        # Extract data from each container
+        for container in transaction_containers:
+            trans_data = self._extract_transaction_data(container)
+            if trans_data and trans_data.get('shares', 0) > 0:
+                trans_data.update(company_info)
+                trans_data['source_file'] = filename
+                transactions.append(trans_data)
+        
+        return transactions
+    
+    def _find_company_info(self, root) -> Dict[str, str]:
+        """Find company and insider information"""
+        info = {
+            'company_name': 'Unknown',
+            'ticker': 'UNK', 
+            'insider_name': 'Unknown',
+            'insider_cik': ''
+        }
+        
+        # Search all elements
+        for elem in root.iter():
+            if elem.text:
+                tag_name = elem.tag.split('}')[-1].lower()
+                text = elem.text.strip()
+                
+                if 'issuername' in tag_name:
+                    info['company_name'] = text
+                elif 'issuertradingsymbol' in tag_name:
+                    info['ticker'] = text
+                elif 'rptownername' in tag_name:
+                    info['insider_name'] = text
+                elif 'rptownercik' in tag_name:
+                    info['insider_cik'] = text
+        
+        return info
+    
+    def _extract_transaction_data(self, container) -> Optional[Dict]:
+        """Extract transaction data from a container element"""
+        data = {
+            'transaction_date': '',
+            'transaction_code': '',
+            'shares': 0,
+            'price_per_share': 0,
+            'acquired_disposed': 'A'
+        }
+        
+        # Build a map of all text values with their context
+        value_map = {}
+        
+        def collect_values(element, path=""):
+            tag_name = element.tag.split('}')[-1].lower()
+            current_path = f"{path}/{tag_name}" if path else tag_name
+            
+            if element.text and element.text.strip():
+                value_map[current_path] = element.text.strip()
+            
+            for child in element:
+                collect_values(child, current_path)
+        
+        collect_values(container)
+        
+        # Extract values using path patterns
+        for path, value in value_map.items():
+            if 'date' in path and 'value' in path:
+                data['transaction_date'] = value
+            elif 'code' in path and len(value) == 1:
+                data['transaction_code'] = value
+            elif 'shares' in path and 'value' in path:
+                data['shares'] = self._clean_number(value)
+            elif 'price' in path and 'value' in path:
+                data['price_per_share'] = self._clean_number(value)
+            elif 'acquired' in path or 'disposed' in path:
+                if value in ['A', 'D']:
+                    data['acquired_disposed'] = value
+        
+        # Calculate total value
+        data['total_value'] = data['shares'] * data['price_per_share']
+        
+        return data if data['shares'] > 0 else None
+    
+    def _extract_by_pattern_matching(self, content: str, filename: str) -> List[Dict]:
+        """Fallback: extract using regex patterns"""
+        transactions = []
+        
+        try:
+            # Extract basic info using regex
+            company_match = re.search(r'<issuerName[^>]*>([^<]+)', content)
+            ticker_match = re.search(r'<issuerTradingSymbol[^>]*>([^<]+)', content)
+            insider_match = re.search(r'<rptOwnerName[^>]*>([^<]+)', content)
+            
+            company_name = company_match.group(1) if company_match else 'Unknown'
+            ticker = ticker_match.group(1) if ticker_match else 'UNK'
+            insider_name = insider_match.group(1) if insider_match else 'Unknown'
+            
+            # Find transaction patterns
+            date_pattern = r'<transactionDate[^>]*>.*?<value[^>]*>([^<]+)'
+            code_pattern = r'<transactionCode[^>]*>([A-Z])'
+            shares_pattern = r'<transactionShares[^>]*>.*?<value[^>]*>([0-9,.-]+)'
+            price_pattern = r'<transactionPricePerShare[^>]*>.*?<value[^>]*>([0-9,.-]+)'
+            
+            dates = re.findall(date_pattern, content)
+            codes = re.findall(code_pattern, content)
+            shares = re.findall(shares_pattern, content)
+            prices = re.findall(price_pattern, content)
+            
+            # Match them up
+            min_length = min(len(dates), len(codes), len(shares), len(prices))
+            
+            for i in range(min_length):
+                shares_num = self._clean_number(shares[i])
+                price_num = self._clean_number(prices[i])
+                
+                if shares_num > 0:
+                    transactions.append({
+                        'company_name': company_name,
+                        'ticker': ticker,
+                        'insider_name': insider_name,
+                        'insider_cik': '',
+                        'transaction_date': dates[i],
+                        'transaction_code': codes[i],
+                        'shares': shares_num,
+                        'price_per_share': price_num,
+                        'total_value': shares_num * price_num,
+                        'acquired_disposed': 'A',
+                        'source_file': filename
+                    })
+            
+            print(f"  Pattern matching found {len(transactions)} transactions")
+            
+        except Exception as e:
+            print(f"  Pattern matching failed: {e}")
+        
+        return transactions
+    
+    def _clean_number(self, value: str) -> float:
+        """Clean and convert string to number"""
+        try:
+            if not value:
+                return 0.0
+            # Remove everything except digits, dots, and minus
+            cleaned = re.sub(r'[^\d.-]', '', str(value))
+            return float(cleaned) if cleaned else 0.0
+        except:
+            return 0.0
+    
+    def _add_analysis_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add analysis and scoring columns"""
+        # Transaction descriptions
+        code_descriptions = {
+            'P': 'Purchase',
+            'S': 'Sale',
+            'A': 'Grant/Award',
+            'D': 'Disposition',
+            'F': 'Tax Payment',
+            'M': 'Exercise/Conversion',
+            'C': 'Conversion'
+        }
+        
+        df['transaction_description'] = df['transaction_code'].map(code_descriptions).fillna('Unknown')
+        
+        # Conviction scoring
+        def calculate_conviction(row):
+            score = 0.0
+            
+            # Transaction type
+            if row['transaction_code'] == 'P':  # Purchase
+                score += 3.0
+            elif row['transaction_code'] == 'S':  # Sale
+                score -= 1.0
+            elif row['transaction_code'] == 'A':  # Award
+                score += 0.5
+            
+            # Size factor
+            if row['total_value'] > 1000000:
+                score += 2.0
+            elif row['total_value'] > 100000:
+                score += 1.0
+            elif row['total_value'] > 10000:
+                score += 0.5
+            
+            # Acquired vs disposed
+            if row['acquired_disposed'] == 'A':
+                score += 1.0
+            else:
+                score -= 0.5
+            
+            return max(0, min(5, score))
+        
+        df['conviction_score'] = df.apply(calculate_conviction, axis=1)
+        
+        # Signal generation
+        def generate_signal(score):
+            if score >= 4.0:
+                return 'Strong Buy'
+            elif score >= 3.0:
+                return 'Buy'
+            elif score >= 2.0:
+                return 'Weak Buy'
+            elif score <= 1.0:
+                return 'Sell'
+            else:
+                return 'Hold'
+        
+        df['signal'] = df['conviction_score'].apply(generate_signal)
+        
+    # Compute company-level signal
+        company_signals = df.groupby('ticker').agg({
+            'conviction_score': 'mean',
+            'total_value': 'sum'
+        }).reset_index()
 
-def display_key_metrics(df):
-    """Display key performance indicators"""
-    if df is None or df.empty:
+        def combined_signal(score):
+            if score >= 4.0:
+                return 'Strong Buy'
+            elif score >= 3.0:
+                return 'Buy'
+            elif score >= 2.0:
+                return 'Weak Buy'
+            else:
+                return 'Sell'
+
+        company_signals['company_signal'] = company_signals['conviction_score'].apply(combined_signal)
+
+        # Merge back to df so each transaction has its company's combined signal
+        df = df.merge(company_signals[['ticker','company_signal']], on='ticker', how='left')
+
+        # Days since transaction
+        def days_since(date_str):
+            try:
+                for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y']:
+                    try:
+                        date_obj = datetime.strptime(date_str, fmt)
+                        return (datetime.now() - date_obj).days
+                    except ValueError:
+                        continue
+                return 999
+            except:
+                return 999
+        
+        df['days_since_transaction'] = df['transaction_date'].apply(days_since)
+        
+        return df.sort_values('conviction_score', ascending=False)
+
+def generate_summary_report(df: pd.DataFrame):
+    """Generate comprehensive summary report"""
+    if df.empty:
+        print("No data to analyze!")
         return
     
-    col1, col2, col3, col4, col5 = st.columns(5)
+    print("\n" + "=" * 60)
+    print("INSIDER TRADING INTELLIGENCE REPORT")
+    print("=" * 60)
     
-    with col1:
-        total_transactions = len(df)
-        st.metric("Total Transactions", f"{total_transactions:,}")
+    # Aggregate by company for reporting
+    company_df = df.groupby('ticker').agg({
+        'conviction_score': 'mean',
+        'total_value': 'sum',
+        'signal': 'first',  # company-level signal
+        'insider_name': lambda x: ', '.join(set(x))
+    }).reset_index()
     
-    with col2:
-        total_value = df['total_value'].sum() if 'total_value' in df.columns else 0
-        st.metric("Total Transaction Value", f"${total_value:,.0f}")
+    print(f"Total Transactions: {len(df)}")
+    print(f"Unique Companies: {company_df['ticker'].nunique()}")
+    print(f"Unique Insiders: {df['insider_name'].nunique()}")
+    print(f"Total Dollar Volume: ${df['total_value'].sum():,.2f}")
+    print(f"Average Conviction Score: {df['conviction_score'].mean():.2f}")
     
-    with col3:
-        avg_conviction = df['conviction_score'].mean() if 'conviction_score' in df.columns else 0
-        st.metric("Avg Conviction Score", f"{avg_conviction:.2f}")
+    print("\nSignal Distribution (per company):")
+    signals = company_df['signal'].value_counts()
+    for signal, count in signals.items():
+        pct = (count / len(company_df)) * 100
+        print(f"  {signal}: {count} ({pct:.1f}%)")
     
-    with col4:
-        unique_companies = df['company_name'].nunique() if 'company_name' in df.columns else 0
-        st.metric("Companies Tracked", unique_companies)
-    
-    with col5:
-        strong_buy_count = len(df[df['signal'] == 'Strong Buy']) if 'signal' in df.columns else 0
-        st.metric("Strong Buy Signals", strong_buy_count)
-
-def create_signal_distribution_chart(df):
-    """Create signal distribution pie chart"""
-    if 'signal' in df.columns:
-        signal_counts = df['signal'].value_counts()
-        
-        fig = px.pie(
-            values=signal_counts.values,
-            names=signal_counts.index,
-            title="Trading Signal Distribution",
-            color_discrete_map={
-                'Strong Buy': '#00CC96',
-                'Buy': '#19D3F3',
-                'Weak Buy': '#FFA500',
-                'Hold': '#FFFF00',
-                'Sell': '#FF6692'
-            }
-        )
-        fig.update_traces(textposition='inside', textinfo='percent+label')
-        return fig
-    return None
-
-def create_conviction_score_distribution(df):
-    """Create conviction score histogram"""
-    if 'conviction_score' in df.columns:
-        fig = px.histogram(
-            df,
-            x='conviction_score',
-            nbins=20,
-            title="Conviction Score Distribution",
-            color_discrete_sequence=['#636EFA']
-        )
-        fig.update_layout(
-            xaxis_title="Conviction Score",
-            yaxis_title="Number of Transactions"
-        )
-        return fig
-    return None
-
-def create_transaction_timeline(df):
-    """Create transaction timeline chart"""
-    if 'transaction_date' in df.columns and df['transaction_date'].notna().any():
-        # Group by date and signal
-        timeline_data = df.groupby(['transaction_date', 'signal']).size().reset_index(name='count')
-        
-        fig = px.bar(
-            timeline_data,
-            x='transaction_date',
-            y='count',
-            color='signal',
-            title="Transaction Timeline by Signal Type",
-            color_discrete_map={
-                'Strong Buy': '#00CC96',
-                'Buy': '#19D3F3',
-                'Weak Buy': '#FFA500',
-                'Hold': '#FFFF00',
-                'Sell': '#FF6692'
-            }
-        )
-        fig.update_layout(
-            xaxis_title="Transaction Date",
-            yaxis_title="Number of Transactions"
-        )
-        return fig
-    return None
-
-def create_top_companies_chart(df, metric='total_value'):
-    """Create top companies chart by selected metric"""
-    if metric in df.columns and 'company_name' in df.columns:
-        company_data = df.groupby('company_name')[metric].sum().sort_values(ascending=False).head(10)
-        
-        fig = px.bar(
-            x=company_data.values,
-            y=company_data.index,
-            orientation='h',
-            title=f"Top 10 Companies by {metric.replace('_', ' ').title()}",
-            color=company_data.values,
-            color_continuous_scale='viridis'
-        )
-        fig.update_layout(
-            xaxis_title=metric.replace('_', ' ').title(),
-            yaxis_title="Company"
-        )
-        return fig
-    return None
-
-def create_insider_activity_heatmap(df):
-    """Create heatmap of insider activity by transaction type and acquired/disposed"""
-    if 'transaction_code' in df.columns and 'acquired_disposed' in df.columns:
-        heatmap_data = df.groupby(['transaction_code', 'acquired_disposed']).size().reset_index(name='count')
-        heatmap_pivot = heatmap_data.pivot(index='transaction_code', columns='acquired_disposed', values='count').fillna(0)
-        
-        fig = px.imshow(
-            heatmap_pivot.values,
-            labels=dict(x="Acquired/Disposed", y="Transaction Code", color="Count"),
-            x=heatmap_pivot.columns,
-            y=heatmap_pivot.index,
-            title="Insider Activity Heatmap: Transaction Type vs Acquired/Disposed",
-            color_continuous_scale='Blues'
-        )
-        return fig
-    return None
-
-def display_top_transactions_table(df, n=10):
-    """Display top transactions table"""
-    st.subheader(f"Top {n} Transactions by Value")
-    
-    if 'total_value' in df.columns:
-        top_transactions = df.nlargest(n, 'total_value')[
-            ['transaction_date', 'company_name', 'ticker', 'insider_name', 
-             'transaction_code', 'shares', 'price_per_share', 'total_value', 
-             'conviction_score', 'signal']
-        ].copy()
-        
-        # Format the display
-        if 'transaction_date' in top_transactions.columns:
-            top_transactions['transaction_date'] = top_transactions['transaction_date'].dt.strftime('%Y-%m-%d')
-        
-        st.dataframe(
-            top_transactions,
-            use_container_width=True,
-            hide_index=True
-        )
-    else:
-        st.warning("Total value data not available")
+    print("\nCompany Summary:")
+    print("-" * 60)
+    for _, row in company_df.iterrows():
+        print(f"{row['ticker']:4} | {row['insider_name'][:20]:20} | "
+              f"${row['total_value']:>10,.0f} | "
+              f"Avg Score: {row['conviction_score']:.1f} | Signal: {row['signal']}")
 
 def main():
-    st.title("🔍 Insider Trading Intelligence Dashboard")
-    st.markdown("---")
+    """Main execution"""
+    parser = InsiderTradingParser()
+    df = parser.process_all_files()
     
-    # Load data
-    df = load_data()
-    
-    if df is None:
-        st.stop()
-    
-    # Sidebar filters
-    st.sidebar.header("Filters")
-    
-    # Date range filter
-    if 'transaction_date' in df.columns and df['transaction_date'].notna().any():
-        min_date = df['transaction_date'].min().date()
-        max_date = df['transaction_date'].max().date()
+    if not df.empty:
+        generate_summary_report(df)
         
-        date_range = st.sidebar.date_input(
-            "Select Date Range",
-            value=(min_date, max_date),
-            min_value=min_date,
-            max_value=max_date
-        )
+        print(f"\n" + "=" * 60)
+        print("MVP COMPLETE - Your data is processed and analyzed!")
+        print("=" * 60)
+        print(f"CSV file created: data/insider_analysis.csv")
+        print(f"Total records: {len(df)}")
         
-        if len(date_range) == 2:
-            df = df[
-                (df['transaction_date'].dt.date >= date_range[0]) &
-                (df['transaction_date'].dt.date <= date_range[1])
-            ]
-    
-    # Signal filter
-    if 'signal' in df.columns:
-        available_signals = df['signal'].unique()
-        selected_signals = st.sidebar.multiselect(
-            "Select Trading Signals",
-            options=available_signals,
-            default=available_signals
-        )
-        df = df[df['signal'].isin(selected_signals)]
-    
-    # Company filter
-    if 'company_name' in df.columns:
-        companies = df['company_name'].unique()
-        if len(companies) > 1:
-            selected_companies = st.sidebar.multiselect(
-                "Select Companies (Optional)",
-                options=sorted(companies),
-                default=[]
-            )
-            if selected_companies:
-                df = df[df['company_name'].isin(selected_companies)]
-    
-    # Display metrics
-    display_key_metrics(df)
-    st.markdown("---")
-    
-    # Main dashboard layout
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # Signal distribution
-        fig_signals = create_signal_distribution_chart(df)
-        if fig_signals:
-            st.plotly_chart(fig_signals, use_container_width=True)
+        # Show sample of data
+        print(f"\nSample of processed data:")
+        display_cols = ['ticker', 'insider_name', 'transaction_date', 
+                       'transaction_description', 'total_value', 'conviction_score', 'signal']
+        print(df[display_cols].head().to_string(index=False))
         
-        # Conviction score distribution
-        fig_conviction = create_conviction_score_distribution(df)
-        if fig_conviction:
-            st.plotly_chart(fig_conviction, use_container_width=True)
-    
-    with col2:
-        # Transaction timeline
-        fig_timeline = create_transaction_timeline(df)
-        if fig_timeline:
-            st.plotly_chart(fig_timeline, use_container_width=True)
-        
-        # Top companies
-        metric_choice = st.selectbox(
-            "Select metric for top companies:",
-            options=['total_value', 'conviction_score', 'shares'],
-            format_func=lambda x: x.replace('_', ' ').title()
-        )
-        fig_companies = create_top_companies_chart(df, metric_choice)
-        if fig_companies:
-            st.plotly_chart(fig_companies, use_container_width=True)
-    
-    # Full-width charts
-    st.markdown("---")
-    
-    # Insider activity heatmap
-    fig_heatmap = create_insider_activity_heatmap(df)
-    if fig_heatmap:
-        st.plotly_chart(fig_heatmap, use_container_width=True)
-    
-    # Top transactions table
-    st.markdown("---")
-    display_top_transactions_table(df)
-    
-    # Raw data section
-    if st.checkbox("Show Raw Data"):
-        st.subheader("Raw Transaction Data")
-        st.dataframe(df, use_container_width=True)
-    
-    # Data summary in sidebar
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("Data Summary")
-    st.sidebar.info(f"""
-    **Filtered Data:**
-    - {len(df)} transactions
-    - {df['company_name'].nunique() if 'company_name' in df.columns else 0} companies
-    - {df['insider_name'].nunique() if 'insider_name' in df.columns else 0} insiders
-    """)
+    else:
+        print("No transactions were successfully extracted from your XML files.")
+        print("This could be due to:")
+        print("- Files being empty or corrupted")
+        print("- Different XML structure than expected")
+        print("- Files not containing transaction data")
 
 if __name__ == "__main__":
     main()

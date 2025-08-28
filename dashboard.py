@@ -195,6 +195,13 @@ def main():
     
     if df is None:
         st.stop()
+
+    # Simple ticker search
+    if 'ticker' in df.columns:
+        ticker_input = st.sidebar.text_input("Search by Ticker (Optional)")
+    if ticker_input:
+        df = df[df['ticker'].str.upper() == ticker_input.strip().upper()]
+    
     
     # Sidebar filters
     st.sidebar.header("Filters")

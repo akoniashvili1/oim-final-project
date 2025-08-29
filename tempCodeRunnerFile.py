@@ -1,4 +1,3 @@
-
 """
 Earnings Call Transcript Sentiment Analysis Module
 Scrapes earnings call transcripts and performs NLP sentiment analysis

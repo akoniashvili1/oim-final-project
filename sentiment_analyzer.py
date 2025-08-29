@@ -1,4 +1,3 @@
-
 """
 Earnings Call Transcript Sentiment Analysis Module
 Scrapes earnings call transcripts and performs NLP sentiment analysis
@@ -14,6 +13,7 @@ import time
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 import json
+
 # NLP Libraries
 try:
     from textblob import TextBlob
@@ -33,6 +33,7 @@ try:
         
 except ImportError:
     print("Warning: Some NLP libraries not installed. Run: pip install textblob nltk")
+
 @dataclass
 class TranscriptData:
     """Data class for earnings call transcript"""
@@ -43,6 +44,7 @@ class TranscriptData:
     date: str
     transcript_text: str
     url: str
+
 @dataclass
 class SentimentScore:
     """Data class for sentiment analysis results"""
@@ -57,6 +59,7 @@ class SentimentScore:
     financial_sentiment: str  # Bullish/Bearish/Neutral
     confidence: float
     key_phrases: List[str]
+
 class EarningsTranscriptScraper:
     """Scrapes earnings call transcripts from various sources"""
     
@@ -185,6 +188,7 @@ class EarningsTranscriptScraper:
             ))
         
         return transcripts
+
 class FinancialSentimentAnalyzer:
     """Advanced sentiment analysis for financial texts"""
     
@@ -289,6 +293,7 @@ class FinancialSentimentAnalyzer:
         key_phrases.extend([phrase.strip() for phrase in outlook_patterns[:3]])  # Limit to 3
         
         return key_phrases[:10]  # Limit to 10 key phrases
+
 class InsiderSentimentCorrelator:
     """Correlate sentiment analysis with insider trading data"""
     
@@ -390,6 +395,7 @@ class InsiderSentimentCorrelator:
             return "Contrarian (Negative Sentiment, Positive Trade)"
         else:
             return "Neutral"
+
 def main():
     """Main function to demonstrate the sentiment analysis pipeline"""
     
@@ -457,5 +463,6 @@ def main():
             print(f"  {alignment}: {count}")
     else:
         print("No correlations found (insider trading data may not be available)")
+
 if __name__ == "__main__":
     main()

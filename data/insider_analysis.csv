@@ -1,21 +1,22 @@
 transaction_date,transaction_code,shares,price_per_share,acquired_disposed,total_value,company_name,ticker,insider_name,insider_cik,source_file,transaction_description,conviction_score,signal,days_since_transaction
 2025-08-03,A,96000000.0,23.34,A,2240640000.0,"Tesla, Inc.",TSLA,Musk Elon,0001494730,tsla_form4.xml,Grant/Award,3.5,Buy,25
-2025-08-01,D,512050.0,217.0,A,111114850.0,AMAZON COM INC,AMZN,Herrington Douglas J,0001936006,amzn_form4.xml,Disposition,3.0,Buy,27
-2025-08-25,D,16290.0,206.72,A,3367468.8,Alphabet Inc.,GOOGL,O'Toole Amie Thuener,0001738007,goog_form4.xml,Disposition,3.0,Buy,3
+2025-08-08,D,136687.0,223.2,A,30508538.4,Apple Inc.,AAPL,KONDO CHRIS,0001631982,aaple_form4.xml,Disposition,3.0,Buy,20
 2025-08-05,D,209513.0,69.1011,A,14477578.7643,COCA COLA CO,KO,KOUMETTIS NIKOLAOS,0001760329,ko_form4.xml,Disposition,3.0,Buy,23
+2025-08-25,D,16290.0,206.72,A,3367468.8,Alphabet Inc.,GOOGL,O'Toole Amie Thuener,0001738007,goog_form4.xml,Disposition,3.0,Buy,3
 2025-08-25,D,16830.0,206.72,A,3479097.6,Alphabet Inc.,GOOGL,O'Toole Amie Thuener,0001738007,goog_form4.xml,Disposition,3.0,Buy,3
+2025-08-25,D,551403887.0,96.534,A,53229222827.658005,Walmart Inc.,WMT,Walton Family Holdings Trust,0001678632,wmt_form4.xml,Disposition,3.0,Buy,3
 2025-08-22,D,551665573.0,98.0581,A,54095277923.7913,Walmart Inc.,WMT,Walton Family Holdings Trust,0001678632,wmt_form4.xml,Disposition,3.0,Buy,6
 2025-08-26,D,550265700.0,96.0492,A,52852580272.44,Walmart Inc.,WMT,Walton Family Holdings Trust,0001678632,wmt_form4.xml,Disposition,3.0,Buy,2
 2025-08-15,D,42453.3663,522.48,A,22181034.824424002,MICROSOFT CORP,MSFT,Coleman Amy,0002062356,msft_form4.xml,Disposition,3.0,Buy,13
-2025-05-12,D,15533.0,208.1933,A,3233866.5289,Apple Inc.,AAPL,KONDO CHRIS,0001631982,aaple_form4.xml,Disposition,3.0,Buy,108
-2025-08-25,D,551403887.0,96.534,A,53229222827.658005,Walmart Inc.,WMT,Walton Family Holdings Trust,0001678632,wmt_form4.xml,Disposition,3.0,Buy,3
-2025-08-25,D,551348286.0,97.4436,A,53725361841.6696,Walmart Inc.,WMT,Walton Family Holdings Trust,0001678632,wmt_form4.xml,Disposition,3.0,Buy,3
+2025-08-01,D,512050.0,217.0,A,111114850.0,AMAZON COM INC,AMZN,Herrington Douglas J,0001936006,amzn_form4.xml,Disposition,3.0,Buy,27
 2025-08-22,D,551726345.0,97.3278,A,53698311360.891,Walmart Inc.,WMT,Walton Family Holdings Trust,0001678632,wmt_form4.xml,Disposition,3.0,Buy,6
-2025-08-04,D,309.0,1158.6,A,358007.39999999997,NETFLIX INC,NFLX,Willems Cletus R,0002065325,nflx_form4.xml,Disposition,2.0,Weak Buy,24
+2025-08-25,D,551348286.0,97.4436,A,53725361841.6696,Walmart Inc.,WMT,Walton Family Holdings Trust,0001678632,wmt_form4.xml,Disposition,3.0,Buy,3
 2025-08-04,D,238.0,1158.6,A,275746.8,NETFLIX INC,NFLX,Willems Cletus R,0002065325,nflx_form4.xml,Disposition,2.0,Weak Buy,24
+2025-08-04,D,309.0,1158.6,A,358007.39999999997,NETFLIX INC,NFLX,Willems Cletus R,0002065325,nflx_form4.xml,Disposition,2.0,Weak Buy,24
+2025-09-01,A,20071.0,0.0,A,0.0,Alphabet Inc.,GOOGL,O'Toole Amie Thuener,0001738007,goog_form4.xml,Grant/Award,1.5,Hold,-4
 2025-08-04,A,316.0,0.0,A,0.0,NETFLIX INC,NFLX,Willems Cletus R,0002065325,nflx_form4.xml,Grant/Award,1.5,Hold,24
 2025-08-04,A,462.0,0.0,A,0.0,NETFLIX INC,NFLX,Willems Cletus R,0002065325,nflx_form4.xml,Grant/Award,1.5,Hold,24
-2025-09-01,A,20071.0,0.0,A,0.0,Alphabet Inc.,GOOGL,O'Toole Amie Thuener,0001738007,goog_form4.xml,Grant/Award,1.5,Hold,-4
+2025-08-25,D,15098.0,0.0,A,0.0,Apple Inc.,AAPL,KONDO CHRIS,0001631982,aaple_form4.xml,Disposition,1.0,Sell,3
 2025-08-26,D,5767.0,0.0,A,0.0,"Meta Platforms, Inc.",META,Anderson Aaron,0001645073,meta_form4.xml,Disposition,1.0,Sell,2
 2025-08-25,D,17112.0,0.0,A,0.0,Alphabet Inc.,GOOGL,O'Toole Amie Thuener,0001738007,goog_form4.xml,Disposition,1.0,Sell,3
 2025-08-25,D,16972.0,0.0,A,0.0,Alphabet Inc.,GOOGL,O'Toole Amie Thuener,0001738007,goog_form4.xml,Disposition,1.0,Sell,3
